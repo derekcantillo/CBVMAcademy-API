@@ -40,8 +40,7 @@ class StudentView(View):
             numdoc=jload['numdoc'],
             blood=jload['blood'],
             email=jload['email'],
-            id_group=jload['id_group'],
-            promo=jload['promo']
+            id_group=jload['id_group']
 
         )
         data={'message': "Student created"}
@@ -49,7 +48,30 @@ class StudentView(View):
         return JsonResponse(data)
 
     def put(self, request, id):
-        pass
+        jload = json.loads(request.body)
+        students=list(Student.objects.filter(id=id).values())
+
+        if len (students)>0:
+            student = Student.objects.get(id=id)
+            student.name=jload['name']
+            student.phone=jload['phone']
+            student.bday=jload['bday']
+            student.numdoc=jload['numdoc']
+            student.blood=jload['blood']
+            student.email=jload['email']
+            student.id_group_id=jload['id_group_id']
+            student.save()
+            data = {'message': "Student updated"}
+        else:
+            data={'message': "Student not found"}
+        
+        return JsonResponse(data)
+
     def delete(self, request, id):
-        pass
+        students = list(Student.objects.filter(id=id).values())
+        if len(students)>0:
+            Student.objects.filter(id=id).delete()
+        else:
+            data={'message': "Student not found"}
+        return JsonResponse(data)
 
