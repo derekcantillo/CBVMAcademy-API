@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 import json
 from django.views.decorators.csrf import csrf_exempt
-from .models import Student, Teacher, Group, Course, Promo
+from .models import Student, Teacher, Group, Course, Promo, PromoStudent
 # Create your views here.
 
 class StudentView(View):
@@ -282,8 +282,8 @@ class PromoView(View):
 
         Promo.objects.create(
             name=jload['name'], 
-            description=jload['description'],
-            level=jload['level']
+            id_teacher_id=jload['id_teacher_id'],
+            id_course_id=jload['id_course_id']
         )
         data={'message': "Promo created"}
         return JsonResponse(data)
@@ -294,8 +294,8 @@ class PromoView(View):
         if len(promos)>0:
             promo=Promo.objects.get(id=id)
             promo.name=jload['name'], 
-            promo.description=jload['description'],
-            promo.level=jload['level']
+            promo.id_teacher_id=jload['id_teacher_id'],
+            promo.id_course_id=jload['id_course_id']
             promo.save()
             data={'message': "Promo updated"}
         else:
@@ -307,4 +307,63 @@ class PromoView(View):
         if len(promos)>0:
             Promo.objects.filter(id=id).delete()
         else:
-            data={'message': "Promo not found"}                
+            data={'message': "Promo not found"}
+
+class PromoStudentView(View):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get(self, request, id=0):
+        if(id>0):
+            promostudents=list(PromoStudent.objects.filter(id=id).values())
+            if len(promostudents)>0:
+                promostudent=promostudents[0]
+                data={'message' : "Success", 'promostudent': promostudent}
+                
+            else:
+                data={'message' : "PromoStudent not found"}
+            return JsonResponse(data)
+
+        else:
+            promostudents=list(PromoStudent.objects.values())
+            if len(promostudents)>0:
+                data={'message' : "Success", 'promostudents': promostudents}
+            else:
+                data={'message' : "PromoStudent not found"}
+            return JsonResponse(data)
+    
+    def post(self, request):
+        jload=json.loads(request.body)
+
+        PromoStudent.objects.create(
+            promo_id=jload['promo_id'],
+            student_id=jload['student_id'],
+            state=jload['state'],
+        )
+        data={'message': "PromoStudent created"}
+        return JsonResponse(data)
+    
+    def put(self, request, id):
+        jload = json.loads(request.body)
+        promostudents=list(PromoStudent.objects.filter(id=id).values())
+        if len(promostudents)>0:
+            promostudent=PromoStudent.objects.get(id=id)
+            promostudent.promo_id=jload['promo_id'],
+            promostudent.student_id=jload['student_id'],
+            promostudent.state=jload['state']
+            promostudent.save()
+            data={'message': "PromoStudent updated" }
+        else:
+            data={'message': "PromoStudent not found"}
+        return JsonResponse(data)
+
+    def delete(self, request):
+        promostudents=list(PromoStudent.objects.filter(id=id).values)
+        if (promostudents)>0:
+            PromoStudent.objects.filter(id=id).delete()
+            data={'message': "PromoStudent deleted"}
+        else:
+            data={'message': "PromoStudent Not Found"}
+
+
