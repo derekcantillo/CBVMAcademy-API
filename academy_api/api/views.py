@@ -101,7 +101,7 @@ class TeacherView(View):
     def post(self, request):
 
         jload = json.loads(request.body)
-        jload = json.loads(request.body)
+        
         Teacher.objects.create(
             name=jload['name'], 
             phone=jload['phone'],
@@ -138,7 +138,7 @@ class TeacherView(View):
     def delete(self, request, id):
         teachers = list(Teacher.objects.filter(id=id).values())
         if len(teachers)>0:
-            Teacher,objects.filter(id=id).delete()
+            Teacher.objects.filter(id=id).delete()
         else:
             data={'message': "Teacher deleted"}
         return JsonResponse(data)
@@ -165,3 +165,37 @@ class GroupView(View):
           else:
               data={'message': "Groups not found"}
           return JsonResponse(data)
+
+    def post(self, request):
+        jload=json.loads(request.body)
+
+        Group.objects.create(
+            name=jload['name'], 
+            direction=jload['direction'],
+            nameleader=jload['nameleader']
+        )
+        data={'message': "Group created"}
+        return JsonResponse(data)
+
+    def put(self, request, id):
+        jload = json.loads(request.body)
+        groups=list(Group.objects.filter(id=id).values())
+        if len(groups)>0:
+            group=Group.objects.get(id=id)
+            group.name=jload['name'], 
+            group.direction=jload['direction'],
+            group.nameleader=jload['nameleader']
+            group.save()
+            data={'message': "Group updated"}
+        else:
+            data={'message': "Group not found"}
+        return JsonResponse(data)
+    
+    def delete(self, request, id):
+        groups = list(Group.objects.filter(id=id).values())
+        if len(groups)>0:
+            Group.objects.filter(id=id).delete()
+        else:
+            data={'message': "Group not found"}    
+
+            
