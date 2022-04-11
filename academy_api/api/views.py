@@ -22,6 +22,13 @@ class StudentView(View):
             else:
                 data={'message' : "Students not found"}
             return JsonResponse(data)
+        else:
+            students=list(Student.objects.values())
+            if len(students)>0:
+                data={'message': "Success", 'students': students}
+            else:
+                data={'message': "Students no found"}
+            return JsonResponse(data)
 
     def post(self, request):
 
