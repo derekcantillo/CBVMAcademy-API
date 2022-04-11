@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 import json
 from django.views.decorators.csrf import csrf_exempt
-from .models import Student, Teacher, Group
+from .models import Student, Teacher, Group, Course, Promo
 # Create your views here.
 
 class StudentView(View):
@@ -198,4 +198,113 @@ class GroupView(View):
         else:
             data={'message': "Group not found"}    
 
+class CourseView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get(self, request, id=0):
+      if(id>0):
+          courses=list(Course.objects.filter(id=id).values())
+          if len(courses)>0:
+              course=courses[0]
+              data={'message': "Success" , 'course':course}
+          else:
+              data={'message': "course not found"}
+          return JsonResponse(data)
+      else:
+          courses=list(Course.objects.values())
+          if len(courses)>0:
             
+              data={'message': "Success" , 'courses':courses}
+          else:
+              data={'message': "Courses not found"}
+          return JsonResponse(data)
+
+    def post(self, request):
+        jload=json.loads(request.body)
+
+        Course.objects.create(
+            name=jload['name'], 
+            description=jload['description'],
+            level=jload['level']
+        )
+        data={'message': "course created"}
+        return JsonResponse(data)
+
+    def put(self, request, id):
+        jload = json.loads(request.body)
+        courses=list(Course.objects.filter(id=id).values())
+        if len(courses)>0:
+            course=Course.objects.get(id=id)
+            course.name=jload['name'], 
+            course.description=jload['description'],
+            course.level=jload['level']
+            course.save()
+            data={'message': "Course updated"}
+        else:
+            data={'message': "Course not found"}
+        return JsonResponse(data)
+    
+    def delete(self, request, id):
+        courses = list(Course.objects.filter(id=id).values())
+        if len(courses)>0:
+            Course.objects.filter(id=id).delete()
+        else:
+            data={'message': "Course not found"}     
+
+class PromoView(View):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get(self, request, id=0):
+      if(id>0):
+          promos=list(Promo.objects.filter(id=id).values())
+          if len(promos)>0:
+              promo=promos[0]
+              data={'message': "Success" , 'promo':promo}
+          else:
+              data={'message': "Promo not found"}
+          return JsonResponse(data)
+      else:
+          promos=list(Promo.objects.values())
+          if len(promos)>0:
+            
+              data={'message': "Success" , 'promos':promos}
+          else:
+              data={'message': "Promos not found"}
+          return JsonResponse(data)
+
+    def post(self, request):
+        jload=json.loads(request.body)
+
+        Promo.objects.create(
+            name=jload['name'], 
+            description=jload['description'],
+            level=jload['level']
+        )
+        data={'message': "Promo created"}
+        return JsonResponse(data)
+
+    def put(self, request, id):
+        jload = json.loads(request.body)
+        promos=list(Promo.objects.filter(id=id).values())
+        if len(promos)>0:
+            promo=Promo.objects.get(id=id)
+            promo.name=jload['name'], 
+            promo.description=jload['description'],
+            promo.level=jload['level']
+            promo.save()
+            data={'message': "Promo updated"}
+        else:
+            data={'message': "Promo not found"}
+        return JsonResponse(data)
+    
+    def delete(self, request, id):
+        promos = list(Promo.objects.filter(id=id).values())
+        if len(promos)>0:
+            Promo.objects.filter(id=id).delete()
+        else:
+            data={'message': "Promo not found"}                
